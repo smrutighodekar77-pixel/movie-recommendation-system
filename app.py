@@ -1,73 +1,58 @@
 import streamlit as st
-import pickle
-from recommender import recommend
+from recommender import recommend, get_movie_titles
 
 
-# Page Configuration
+# Page Config
 
-st.set_page_config(
-    page_title="Movie Recommendation System",
-    page_icon="🎬",
-    layout="centered"
-)
-
+st.set_page_config(page_title="Movie Recommendation System", page_icon="🎬", layout="centered")
 
 # Custom Styling
 
 st.markdown("""
     <style>
-    .main-title {
-        text-align: center;
-        font-size: 40px;
-        font-weight: bold;
-        color: #ff4b4b;
+    .main {
+        background-color: #0E1117;
+        color: white;
     }
-
-    .sub-text {
-        text-align: center;
+    .stApp {
+        background-color: #0E1117;
+        color: white;
+    }
+    h1, h2, h3, h4, h5, h6, p, div, label {
+        color: white !important;
+    }
+    .movie-box {
+        background-color: #1f2937;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 10px;
+        color: white;
         font-size: 18px;
-        color: #d3d3d3;
-        margin-bottom: 20px;
-    }
-
-    .recommend-box {
-        background-color: #f5f5f5;
-        color: #000000;   /* FIXED: black text */
-        padding: 14px;
-        border-radius: 12px;
-        margin-bottom: 12px;
-        font-size: 20px;
-        font-weight: 600;
-        box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
-    }
-
-    .footer-text {
-        text-align: center;
-        color: #aaaaaa;
-        font-size: 14px;
+        font-weight: 500;
     }
     </style>
 """, unsafe_allow_html=True)
 
 
-# Load Movies for Dropdown
+# Title
 
-movies = pickle.load(open("outputs/movies.pkl", "rb"))
+st.title("🎬 Movie Recommendation System")
+st.write("Select a movie and get top 5 similar movie recommendations.")
 
 
-# UI
+# Dropdown
 
-st.markdown('<div class="main-title">🎬 Movie Recommendation System</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-text">Find movies similar to your favorite one </div>', unsafe_allow_html=True)
-
-movie_list = sorted(movies['title'].unique())
+movie_list = get_movie_titles()
 selected_movie = st.selectbox("Choose a movie", movie_list)
+
+# Recommend Button
 
 if st.button("Recommend"):
     recommendations = recommend(selected_movie)
 
-    st.subheader("Top 5 Recommended Movies")
-    for idx, movie in enumerate(recommendations, start=1):
-        st.markdown(f'<div class="recommend-box">{idx}. {movie}</div>', unsafe_allow_html=True)
-
-st.write("---")
+    if recommendations:
+        st.subheader("Recommended Movies:")
+        for movie in recommendations:
+            st.markdown(f"<div class='movie-box'>{movie}</div>", unsafe_allow_html=True)
+    else:
+        st.error("Movie not found. Please try another title.")
